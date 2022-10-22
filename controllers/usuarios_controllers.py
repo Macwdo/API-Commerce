@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, Form, HTTPException
 from models.usuarios import Usuario
 from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioCreate, UsuarioLogin, UsuarioResponse
-from security import jwt_get_sub, password_verify ,jwt_create, oauth2_scheme, SECRET_KEY
+from security import jwt_validation, password_verify ,jwt_create, oauth2_scheme, SECRET_KEY
 from jose import jwt
 
 
@@ -22,11 +22,6 @@ async def login(username: str = Form(...), password:str = Form(...)):
             status_code=404
         )
 
-@router.get("/gettoken",tags=["Usuario"])
-async def getoken(token: str = Depends(oauth2_scheme)):
-    dados = jwt_get_sub(token)
-    return {}
-
 
 @router.post("/", response_model=UsuarioLogin,tags=["Usuario"])
 async def create(usuario: UsuarioCreate):
@@ -34,11 +29,20 @@ async def create(usuario: UsuarioCreate):
     user = Usuario(**data)
     return await user.save()
     
-@router.post("{id}/cargos/{cargo}",response_model=UsuarioResponse)
-async def cargos(cargo: str,id: int):
+@router.post("/{id}/cargos/{cargo}",response_model=UsuarioResponse,tags=["Usuario"])
+async def cargos(cargo: str,id: int,token: str = Depends(oauth2_scheme)):
     user = await Usuario.objects.get_or_none(id=id)
     user.cargos += [cargo]
-    return user.save()
+    await user.update()
+    return user
+
+@router.delete("/{id}/cargos/{cargo}",response_model=UsuarioResponse,tags=["Usuario"])
+async def delete_cargos(cargo: str,id: int,token: str = Depends(oauth2_scheme)):
+    user = await Usuario.objects.get_or_none(id=id)
+    user_cargos = user.cargos
+    user_cargos.remove(cargo)
+    await user.update()
+    return user
 
 @router.get("/{id}",response_model=UsuarioLogin,tags=["Usuario"])
 async def get_id(id: int):
@@ -50,11 +54,17 @@ async def get_all():
 
 @router.patch("/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
 async def update_patch(id: int, user: UsuarioPatchSCHM,token: str = Depends(oauth2_scheme)):
-    user_dict = user.dict(exclude_unset=True)
-    userid = await Usuario.objects.get_or_none(id=id)
-    await userid.update(**user_dict)
-    userid.save()
-    return userid
+    if jwt_validation(token):
+        user_dict = user.dict(exclude_unset=True)
+        userid = await Usuario.objects.get_or_none(id=id)
+        await userid.update(**user_dict)
+        userid.save()
+        return userid
+    else:
+        return HTTPException(
+            status=401,
+            detail="Token Expirado"
+        )
 
 @router.delete("/{id}",tags=["Usuario"])
 async def delete(id:int,token: str = Depends(oauth2_scheme)):

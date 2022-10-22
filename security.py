@@ -1,10 +1,16 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union
 from passlib.context import CryptContext
-from configs.database import SECRET_KEY
 from jose import jwt
+from fastapi.security import OAuth2PasswordBearer
 
-password_enc = CryptContext(schemes=["sha256_crypt"])
+password_enc = CryptContext(schemes=["sha256_crypt"],deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/api/usuarios/login"
+)
+
+SECRET_KEY = "secret"
+
 
 def jwt_create(sub: Union[Any,str]):
     payload = {
@@ -18,5 +24,5 @@ def jwt_create(sub: Union[Any,str]):
 def password_create(password: str):
     return password_enc.hash(password)
     
-def password_verify(password: str):
-    return password_enc.verify(password,password_create(password))
+def password_verify(password: str, encpass: str):
+    return password_enc.verify(password,encpass)

@@ -1,9 +1,30 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
+from security import password_create
 
+
+class UsuarioResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    
+    
 class UsuarioPatchShowSCHM(BaseModel):
     email: str
     username: str
+    
+class UsuarioLogin(BaseModel):
+    username: str
+    email: str
+    
+class UsuarioCreate(BaseModel):
+    email: str
+    username:str
+    hash_password: str = Field(alias="password")
+    
+    @validator('hash_password')
+    def hash_pass(cls,password):
+        return password_create(password)
     
 class UsuarioPatchSCHM(BaseModel):
     username: Optional[str]

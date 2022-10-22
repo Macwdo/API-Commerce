@@ -1,7 +1,6 @@
 import databases
 import sqlalchemy
 
-SECRET_KEY = "secret"
 DATABASE_URL = "sqlite:///alunos.sqlite"
 database = databases.Database(DATABASE_URL,force_rollback=False)
 metadata = sqlalchemy.MetaData()

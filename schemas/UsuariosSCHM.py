@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, Field, validator
 from security import password_create
 
@@ -7,7 +7,8 @@ class UsuarioResponse(BaseModel):
     id: int
     username: str
     email: str
-    
+    cargos: List[str]
+
     
 class UsuarioPatchShowSCHM(BaseModel):
     email: str

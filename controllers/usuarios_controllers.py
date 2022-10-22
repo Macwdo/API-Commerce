@@ -34,6 +34,11 @@ async def create(usuario: UsuarioCreate):
     user = Usuario(**data)
     return await user.save()
     
+@router.post("{id}/cargos/{cargo}",response_model=UsuarioResponse)
+async def cargos(cargo: str,id: int):
+    user = await Usuario.objects.get_or_none(id=id)
+    user.cargos += [cargo]
+    return user.save()
 
 @router.get("/{id}",response_model=UsuarioLogin,tags=["Usuario"])
 async def get_id(id: int):
@@ -44,7 +49,7 @@ async def get_all():
     return await Usuario.objects.all()
 
 @router.patch("/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
-async def update_patch(id: int, user: UsuarioPatchSCHM):
+async def update_patch(id: int, user: UsuarioPatchSCHM,token: str = Depends(oauth2_scheme)):
     user_dict = user.dict(exclude_unset=True)
     userid = await Usuario.objects.get_or_none(id=id)
     await userid.update(**user_dict)

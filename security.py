@@ -20,6 +20,10 @@ def jwt_create(sub: Union[Any,str]):
     token = jwt.encode(payload,SECRET_KEY,algorithm="HS512")
     return token
     
+def jwt_get_sub(token):
+    data = jwt.decode(token,SECRET_KEY,algorithms="HS512")
+    return data.get("sub")
+    
  
 def password_create(password: str):
     return password_enc.hash(password)

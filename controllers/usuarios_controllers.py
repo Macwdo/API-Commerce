@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from models.usuarios import Usuario
 from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioCreate, UsuarioLogin, UsuarioResponse
 from jose import jwt
-from controllers.utils.security import oauth2_scheme
+from controllers.utils.security import oauth2_scheme, verify_user
 
 
 router = APIRouter()
@@ -34,7 +34,7 @@ async def get_all():
 
 @router.patch("/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
 async def update_patch(id: int, user: UsuarioPatchSCHM,token: str = Depends(oauth2_scheme)):
-    print(f'-{token}')
+    verify_user(id,token)
     user_dict = user.dict(exclude_unset=True)
     userid = await Usuario.objects.get_or_none(id=id)
     await userid.update(**user_dict)

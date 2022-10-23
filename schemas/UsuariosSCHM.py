@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, validator
-from security import password_create
+from controllers.utils.security import password_create
 
 
 class UsuarioResponse(BaseModel):

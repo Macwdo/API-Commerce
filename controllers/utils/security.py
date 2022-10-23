@@ -45,13 +45,11 @@ def password_verify(password: str, encpass: str):
 
 #####
 
-def admin_permission(user):
+def permission(user,permission:str):
     user = user.dict()
-    for i in user.get('cargos'):
-        if 'admin' == i:
+    cargos = user.get('cargos')
+    for i in cargos:
+        if permission == i:
             return True
-    raise HTTPException(
-        status=401,
-        details={"detail":"Not authenticated"}
-    )
+    return False
 

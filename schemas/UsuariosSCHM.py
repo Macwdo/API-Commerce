@@ -4,10 +4,18 @@ from controllers.utils.security import password_create
 
 
 class UsuarioResponse(BaseModel):
+    id:  Optional[int]
+    username: str
+    email: str
+    cargos: List[str]
+    
+class UsuarioSCHM(BaseModel):
     id: int
     username: str
     email: str
     cargos: List[str]
+    hash_password: str
+    
 
     
 class UsuarioPatchShowSCHM(BaseModel):

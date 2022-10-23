@@ -1,28 +1,34 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from models.usuarios import Usuario
-from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioCreate, UsuarioLogin, UsuarioResponse
-from jose import jwt
-from controllers.utils.security import oauth2_scheme, verify_user
+from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioLogin, UsuarioResponse
+from controllers.utils.security import oauth2_scheme, get_current_user, admin_permission
 
 
 router = APIRouter()
 
     
 @router.post("/{id}/cargos/{cargo}",response_model=UsuarioResponse,tags=["Usuario"])
-async def cargos(cargo: str,id: int,token: str = Depends(oauth2_scheme)):
-    user = await Usuario.objects.get_or_none(id=id)
-    user.cargos += [cargo]
-    await user.update()
-    return user
+async def cargos(cargo: str,id: int,user: UsuarioResponse = Depends(get_current_user)):
+    if admin_permission:
+        usuario = await Usuario.objects.get_or_none(id=id)
+        usuario.cargos += [cargo]
+        await usuario.update()
+        return usuario
+    else:
+        raise HTTPException(
+        status=401,
+        details={"detail":"Not authenticated"}
+    )
+        
 
 @router.delete("/{id}/cargos/{cargo}",response_model=UsuarioResponse,tags=["Usuario"])
-async def delete_cargos(cargo: str,id: int,token: str = Depends(oauth2_scheme)):
-    user = await Usuario.objects.get_or_none(id=id)
-    user_cargos = user.cargos
+async def delete_cargos(cargo: str,id: int,user: str = Depends(get_current_user)):
+    usuario = await Usuario.objects.get_or_none(id=id)
+    user_cargos = usuario.cargos
     user_cargos.remove(cargo)
-    await user.update()
-    return user
+    await usuario.update()
+    return usuario
 
 @router.get("/{id}",response_model=UsuarioLogin,tags=["Usuario"])
 async def get_id(id: int):
@@ -33,9 +39,8 @@ async def get_all():
     return await Usuario.objects.all()
 
 @router.patch("/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
-async def update_patch(id: int, user: UsuarioPatchSCHM,token: str = Depends(oauth2_scheme)):
-    verify_user(id,token)
-    user_dict = user.dict(exclude_unset=True)
+async def update_patch(id: int, user_data: UsuarioPatchSCHM,user: str = Depends(get_current_user)):
+    user_dict = user_data.dict(exclude_unset=True)
     userid = await Usuario.objects.get_or_none(id=id)
     await userid.update(**user_dict)
     userid.save()
@@ -43,5 +48,5 @@ async def update_patch(id: int, user: UsuarioPatchSCHM,token: str = Depends(oaut
 
 
 @router.delete("/{id}",tags=["Usuario"])
-async def delete(id:int,token: str = Depends(oauth2_scheme)):
+async def delete(id:int,user: str = Depends(get_current_user)):
     return await Usuario.objects.delete(id=id)

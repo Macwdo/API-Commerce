@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union
-from fastapi import Depends, HTTPException,status
+from fastapi import Depends, HTTPException
 from jose import jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
+from models.usuarios import Usuario
 
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -27,15 +28,30 @@ def get_sub(token: str):
     data = jwt.decode(token,SECRET_KEY,algorithms="HS512")
     return int(data.get('sub'))
 
-def verify_user(id: int,token: str = Depends(oauth2_scheme)):
-    sub = get_sub(token)
-    if sub != id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-    return True
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    id = get_sub(token)
+    user = await Usuario.objects.get_or_none(id=int(id))
+    if not user:
+        raise HTTPException(
+            status_code=404
+        )
+    return user
         
-    
 def password_create(password: str):
     return password_enc.hash(password)
     
 def password_verify(password: str, encpass: str):
     return password_enc.verify(password,encpass)
+
+#####
+
+def admin_permission(user):
+    user = user.dict()
+    for i in user.get('cargos'):
+        if 'admin' == i:
+            return True
+    raise HTTPException(
+        status=401,
+        details={"detail":"Not authenticated"}
+    )
+

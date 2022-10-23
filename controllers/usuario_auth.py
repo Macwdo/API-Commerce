@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends,Form, HTTPException
-from controllers.utils.security import password_verify ,jwt_create, SECRET_KEY,get_sub,oauth2_scheme
+from controllers.utils.security import get_current_user, password_verify ,jwt_create
 from models.usuarios import Usuario
 from schemas.UsuariosSCHM import UsuarioLogin, UsuarioCreate, UsuarioResponse
 
@@ -19,10 +19,9 @@ async def login(username: str = Form(...), password:str = Form(...)):
         )
 
 @router.get("/me",response_model=UsuarioResponse)
-async def me(token: str = Depends(oauth2_scheme)):
-    id = get_sub(token)
-    user = await Usuario.objects.get_or_none(id=int(id))
+async def me(user: Usuario = Depends(get_current_user)):
     return user
+    
     
 
 @router.post("/", response_model=UsuarioLogin,tags=["Usuario"])

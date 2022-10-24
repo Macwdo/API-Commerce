@@ -5,7 +5,7 @@ from configs.database import database, metadata
 from fastapi import HTTPException
 
 
-cargos_validos = ['admin','aluno','professor']
+cargos_validos = ['admin','vendedor','comprador']
 
 
 class Usuario(ormar.Model):

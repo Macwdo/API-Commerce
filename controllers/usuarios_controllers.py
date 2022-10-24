@@ -1,12 +1,20 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from models.usuarios import Usuario
-from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioLogin, UsuarioResponse, UsuarioSCHM
+from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioLogin, UsuarioResponse, UsuarioSCHM,UsuarioCreate
 from controllers.utils.security import oauth2_scheme, get_current_user, permission
 
 
 router = APIRouter()
 
+    
+    
+@router.post("/", response_model=UsuarioLogin,tags=["Usuario"])
+async def create(usuario: UsuarioCreate,response : Response = Response()):
+    response.status_code = status.HTTP_201_CREATED
+    data = usuario.dict(exclude_unset=True)
+    user = Usuario(**data)
+    return await user.save()
     
 @router.post("/{id}/cargos/{cargo}",response_model=UsuarioResponse,tags=["Usuario"])
 async def cargos(cargo: str,id: int,user: UsuarioSCHM = Depends(get_current_user)):

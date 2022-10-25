@@ -7,5 +7,5 @@ router = APIRouter()
 
 router.include_router(userroute, prefix="/usuarios")
 router.include_router(authroute, prefix="/auth")
-router.include_router(produtoroute, prefix="/produtos")
+router.include_router(produtoroute, prefix="/usuarios")
 

@@ -1,12 +1,6 @@
-import sys
-sys.path.append("/home/danilo/Estudos/Api-Alunos/modelos")
-sys.path.append("/home/danilo/Estudos/Api-Alunos")
-import Produtos
-from typing import List, Optional
 import ormar
-from pydantic import Json, validator
+from pydantic import validator
 from configs.database import database, metadata
-from fastapi import HTTPException
 
 
 cargos_validos = ['admin','vendedor','comprador']
@@ -22,7 +16,6 @@ class Usuario(ormar.Model):
     email: str = ormar.String(max_length=120,unique=True)
     hash_password: str = ormar.String(max_length=256)
     cargos: str = ormar.JSON(default=[])
-    vendas: Produtos.Produto = ormar.ManyToMany(Produtos.Produto)
 
     @validator("cargos")
     def cargos_duplicate_validator(cls,v):

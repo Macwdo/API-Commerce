@@ -4,7 +4,7 @@ from url import router as urls_router
 
 app = FastAPI()
 
-app.include_router(urls_router, prefix="/api")
+app.include_router(urls_router, prefix="")
 
 @app.get('/')
 async def teste():

@@ -1,12 +1,18 @@
 from pydantic import BaseModel, Json
 
-from modelos.Usuarios import Usuario
 
-
-
-class ProdutoCreate(BaseModel):
+class ProdutoResponse(BaseModel):
     id: int
     nome: str
     descricao: str
     preco: float
+    quantidade: int
+    
+class ProdutoPatch(BaseModel):
+    nome: str or None = None
+    descricao: str or None = None
+    preco: float or None = None
+    quantidade: int or None = None
+    
+
     

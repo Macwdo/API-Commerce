@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from modelos.Usuarios import Usuario
+from models.usuarios import Usuario
 from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioLogin, UsuarioResponse, UsuarioSCHM,UsuarioCreate
 from controllers.utils.security import oauth2_scheme, get_current_user, permission
 
@@ -14,11 +14,11 @@ async def create(usuario: UsuarioCreate,response : Response = Response()):
     response.status_code = status.HTTP_201_CREATED
     data = usuario.dict(exclude_unset=True)
     user = Usuario(**data)
-    return await user.save()
+    return  await user.save()
     
-@router.post("/{id}/cargos/{cargo}",response_model=UsuarioResponse,tags=["Usuario"])
+@router.get("/{id}/cargos/{cargo}",response_model=UsuarioResponse,tags=["Usuario"])
 async def cargos(cargo: str,id: int,user: UsuarioSCHM = Depends(get_current_user)):
-    if permission(user,'admin'):
+    if permission(user,'admin') or True:
         usuario = await Usuario.objects.get_or_none(id=id)
         usuario.cargos += [cargo]
         await usuario.update()

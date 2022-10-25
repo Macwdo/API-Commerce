@@ -1,7 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, validator
 from controllers.utils.security import password_create
-from modelos.Produtos import Produto
+from models.produtos import Produto
 
 
 class UsuarioResponse(BaseModel):

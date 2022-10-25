@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException
 from jose import jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from modelos.Usuarios import Usuario
+from models.usuarios import Usuario
 
 
 oauth2_scheme = OAuth2PasswordBearer(

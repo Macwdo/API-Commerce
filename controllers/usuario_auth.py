@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends,Form, HTTPException, Response,status
 from controllers.utils.security import get_current_user, password_verify ,jwt_create
-from modelos.Usuarios import Usuario
+from models.usuarios import Usuario
 from schemas.UsuariosSCHM import UsuarioResponse,UsuarioSCHM
 
 router = APIRouter()

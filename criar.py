@@ -1,7 +1,7 @@
 import sqlalchemy
 from configs.database import metadata , DATABASE_URL
-from models.usuarios import Usuario
-from models.produtos import Produto
+import modelos.Produtos
+import modelos.Usuarios
 
 
 def config(databaseurl=DATABASE_URL):

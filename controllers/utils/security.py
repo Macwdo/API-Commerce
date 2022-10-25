@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException
 from jose import jwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
-from models.usuarios import Usuario
+from modelos.Usuarios import Usuario
 
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -18,7 +18,7 @@ SECRET_KEY = "djsa0iojdosa"
 
 def jwt_create(sub: Union[Any,str]):
     payload = {
-        "exp": datetime.now(tz=timezone.utc) + timedelta(hours=1),
+        "exp": datetime.now(tz=timezone.utc) + timedelta(hours=24),
         "sub":str(sub)
         }
     token = jwt.encode(payload,SECRET_KEY,algorithm="HS512")

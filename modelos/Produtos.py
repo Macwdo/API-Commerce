@@ -1,7 +1,9 @@
+import sys
+sys.path.append("/home/danilo/Estudos/Api-Alunos/modelos")
+sys.path.append("/home/danilo/Estudos/Api-Alunos")
+import modelos.Usuarios
 import ormar
 from configs.database import metadata, database
-from models.usuarios import Usuario
-
 
 class Produto(ormar.Model):
     class Meta:
@@ -12,5 +14,5 @@ class Produto(ormar.Model):
     id: int = ormar.Integer(primary_key=True)
     nome: str = ormar.String(max_length=50)
     descricao: str = ormar.String(max_length=200)
-    vendedor: int = ormar.ForeignKey(Usuario,skip_reverse=True)
+    vendedor: int = ormar.ForeignKey(modelos.Usuarios.Usuario,skip_reverse=True)
     preco: float = ormar.Float()

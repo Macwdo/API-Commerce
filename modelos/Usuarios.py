@@ -1,3 +1,7 @@
+import sys
+sys.path.append("/home/danilo/Estudos/Api-Alunos/modelos")
+sys.path.append("/home/danilo/Estudos/Api-Alunos")
+import Produtos
 from typing import List, Optional
 import ormar
 from pydantic import Json, validator
@@ -17,7 +21,8 @@ class Usuario(ormar.Model):
     username: str = ormar.String(max_length=30,unique=True)
     email: str = ormar.String(max_length=120,unique=True)
     hash_password: str = ormar.String(max_length=256)
-    cargos: Json = ormar.JSON(default=[])
+    cargos: str = ormar.JSON(default=[])
+    vendas: Produtos.Produto = ormar.ManyToMany(Produtos.Produto)
 
     @validator("cargos")
     def cargos_duplicate_validator(cls,v):
@@ -32,9 +37,8 @@ class Usuario(ormar.Model):
                 raise ValueError(f"A Cargo {cargo} não existe")
         return v
     
-    
-    
-         
+
+
         
     
         

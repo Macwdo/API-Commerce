@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from models.usuarios import Usuario
+from modelos.Usuarios import Usuario
 from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioLogin, UsuarioResponse, UsuarioSCHM,UsuarioCreate
 from controllers.utils.security import oauth2_scheme, get_current_user, permission
 

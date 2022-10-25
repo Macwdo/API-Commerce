@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Json
 
-from models.usuarios import Usuario
+from modelos.Usuarios import Usuario
 
 
 
@@ -9,3 +9,4 @@ class ProdutoCreate(BaseModel):
     nome: str
     descricao: str
     preco: float
+    

@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, validator
 from controllers.utils.security import password_create
+from modelos.Produtos import Produto
 
 
 class UsuarioResponse(BaseModel):
@@ -8,7 +9,8 @@ class UsuarioResponse(BaseModel):
     username: str
     email: str
     cargos: List[str]
-    
+
+
 class UsuarioSCHM(BaseModel):
     id: int
     username: str

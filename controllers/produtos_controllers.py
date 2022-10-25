@@ -1,5 +1,5 @@
 from controllers.utils.security import get_current_user, permission
-from models.produtos import Produto
+from modelos.Produtos import Produto
 from fastapi import APIRouter, Depends, HTTPException, status
 from schemas.ProdutosSCHM import ProdutoCreate
 

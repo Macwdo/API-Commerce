@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends,Form, HTTPException, Response,status
 from controllers.utils.security import get_current_user, password_verify ,jwt_create
 from models.usuarios import Usuario
-from schemas.UsuariosSCHM import UsuarioResponse,UsuarioSCHM
+from schemas.UsuariosSCHM import UsuarioResponseAll,UsuarioSCHM
 
 router = APIRouter()
 
@@ -18,7 +18,7 @@ async def login(username: str = Form(...), password:str = Form(...)):
             status_code=404
         )
 
-@router.get("/me",response_model=UsuarioResponse,tags=["Auth"])
+@router.get("/me",response_model=UsuarioResponseAll,response_model_exclude_unset=True,tags=["Auth"])
 async def me(user: UsuarioSCHM = Depends(get_current_user)):
     return user
     

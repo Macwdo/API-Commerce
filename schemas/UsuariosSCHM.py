@@ -1,5 +1,5 @@
-from typing import List, Optional
-from pydantic import BaseModel, Field, validator
+from typing import Any, List, Optional, Union
+from pydantic import BaseModel, Field, Json, validator
 from controllers.utils.security import password_create
 from models.produtos import Produto
 
@@ -9,6 +9,15 @@ class UsuarioResponse(BaseModel):
     username: str
     email: str
     cargos: List[str]
+
+    
+class UsuarioResponseAll(BaseModel):
+    id:  Optional[int]
+    username: str
+    email: str
+    cargos: List[str]
+    vendas: List[Union[Json,Any]] = []
+    pedidos: List[Union[Json,Any]] = []
 
 
 class UsuarioSCHM(BaseModel):

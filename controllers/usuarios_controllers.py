@@ -1,13 +1,14 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+from models.produtos import Produto
 from models.usuarios import Usuario
-from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioLogin, UsuarioResponse, UsuarioSCHM,UsuarioCreate
+from schemas.ProdutosSCHM import ProdutoResponse
+from schemas.UsuariosSCHM import UsuarioPatchShowSCHM, UsuarioPatchSCHM, UsuarioLogin, UsuarioResponse, UsuarioResponseAll, UsuarioSCHM,UsuarioCreate
 from controllers.utils.security import oauth2_scheme, get_current_user, permission
 
 
 router = APIRouter()
 
-    
     
 @router.post("/", response_model=UsuarioLogin,tags=["Usuario"])
 async def create(usuario: UsuarioCreate,response : Response = Response()):
@@ -15,55 +16,41 @@ async def create(usuario: UsuarioCreate,response : Response = Response()):
     data = usuario.dict(exclude_unset=True)
     user = Usuario(**data)
     return  await user.save()
-    
-@router.get("/{id}/cargos/{cargo}",response_model=UsuarioResponse,tags=["Usuario"])
-async def cargos(cargo: str,id: int,user: UsuarioSCHM = Depends(get_current_user)):
-    if permission(user,'admin') or True:
-        usuario = await Usuario.objects.get_or_none(id=id)
-        usuario.cargos += [cargo]
-        await usuario.update()
-        return usuario
-    else:
-        raise HTTPException(
-            status_code=401,
-            detail="Not authenticated"
-        )
 
-@router.delete("/{id}/cargos/{cargo}",response_model=Optional[UsuarioResponse],tags=["Usuario"])
-async def delete_cargos(cargo: str,id: int,user: UsuarioSCHM = Depends(get_current_user), response: Response = Response()):
-    dados = user.dict()
-    id_user = int(dados.get('id'))
-    if permission(user,'admin'):
-        if id_user != id:
-            usuario = await Usuario.objects.get_or_none(id=id)
-            user_cargos = usuario.cargos
-            if len(user_cargos) == 0:
-                response.status_code = 404
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Cargo não encontrado")
-            user_cargos.remove(cargo)
-            await usuario.update()
-            return usuario
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_406_NOT_ACCEPTABLE,
-                detail="Not Acceptable"
-            )
-    else:
-        raise HTTPException(
-            status_code=401,
-            detail="Not authenticated"
-        )
-
-
-@router.get("/{id}",response_model=UsuarioLogin,tags=["Usuario"])
+@router.get("/{id}",response_model=UsuarioResponseAll,response_model_exclude_unset=True,tags=["Usuario"])
 async def get_id(id: int):
-    return await Usuario.objects.get(id=id)
+    user = await Usuario.objects.get(id=id)
+    response = []
+    id_vend = {"vendedor":user.id}
+    produtos = await Produto.objects.all(**id_vend)
+    response = {
+        "id": int(user.id),
+        "username": user.username,
+        "email": user.email,
+        "cargos": user.cargos,
+        "vendas": produtos,
+    }
+    return response
 
-@router.get("/",response_model=List[UsuarioResponse],tags=["Usuario"])
-async def get_all():
-    return await Usuario.objects.all()
+
+@router.get("/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
+async def get_all(page_num: int = 1,page_size: int = 10):
+    start = (page_num - 1) * page_size
+    end = start + page_size
+    users = await Usuario.objects.all()
+    response = []
+    for user in users:
+        id_vend = {"vendedor":user.id}
+        produtos = await Produto.objects.all(**id_vend)
+        data = {
+            "id": int(user.id),
+            "username": user.username,
+            "email": user.email,
+            "cargos": user.cargos,
+            "vendas": produtos,
+        }
+        response.append(data)
+    return response[start:end]
 
 @router.patch("/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
 async def update_patch(id: int, user_data: UsuarioPatchSCHM,user: UsuarioSCHM = Depends(get_current_user),response: Response = Response()):

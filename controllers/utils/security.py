@@ -8,7 +8,7 @@ from models.usuarios import Usuario
 
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl='/api/auth/login'
+    tokenUrl='/api/auth/token'
 )
 
 password_enc = CryptContext(schemes=["sha256_crypt"],deprecated="auto")

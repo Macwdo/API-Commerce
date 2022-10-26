@@ -5,7 +5,7 @@ from schemas.UsuariosSCHM import UsuarioResponseAll,UsuarioSCHM
 
 router = APIRouter()
 
-@router.post("/login",tags=["Auth"])
+@router.post("/token",tags=["Auth"])
 async def login(username: str = Form(...), password:str = Form(...)):
     user = await Usuario.objects.get_or_none(username=username)
     if password_verify(password,user.hash_password):

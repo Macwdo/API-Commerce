@@ -1,4 +1,3 @@
-from typing import List
 from controllers.utils.security import get_current_user, permission
 from models.produtos import Produto
 from fastapi import APIRouter, Depends, HTTPException, status, Response
@@ -36,7 +35,7 @@ async def create(produto: Produto, user = Depends(get_current_user)):
         return await produto.save()
     else:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTzHORIZED
+            status_code=status.HTTP_401_UNAUTHORIZED
         )
     
 #Patch
@@ -58,7 +57,7 @@ async def update_patch(id_pd: int, prod_data: ProdutoPatch,user: UsuarioSCHM = D
         
 #delete
 
-@router.delete("/produtos/{id_pd}",tags=["Produto"])
+@router.delete("/produtos/{id_pd}",tags=["Produtos"])
 async def delete(id_pd: int,user: UsuarioSCHM = Depends(get_current_user),response: Response = Response()):
     produto_id = await Produto.objects.get_or_none(id=id_pd)
     if not produto_id:

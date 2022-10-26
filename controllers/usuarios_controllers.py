@@ -1,5 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+from models.pedidos import Pedido
 from models.produtos import Produto
 from models.usuarios import Usuario
 from schemas.ProdutosSCHM import ProdutoResponse
@@ -15,7 +16,7 @@ async def create(usuario: UsuarioCreate,response : Response = Response()):
     response.status_code = status.HTTP_201_CREATED
     data = usuario.dict(exclude_unset=True)
     user = Usuario(**data)
-    return  await user.save()
+    return await user.save()
 
 @router.get("/{id}",response_model=UsuarioResponseAll,response_model_exclude_unset=True,tags=["Usuario"])
 async def get_id(id: int):
@@ -23,15 +24,25 @@ async def get_id(id: int):
     response = []
     id_vend = {"vendedor":user.id}
     produtos = await Produto.objects.all(**id_vend)
+    id_comp = {"comprador":user.id}
+    pedidos = await Pedido.objects.all(**id_comp)
     response = {
         "id": int(user.id),
         "username": user.username,
         "email": user.email,
         "cargos": user.cargos,
         "vendas": produtos,
+        "pedidos": pedidos
     }
     return response
 
+@router.get("/users/",response_model=List[UsuarioResponse],tags=["Usuario"])
+async def get_users():
+    return await Usuario.objects.all()
+
+@router.get("/users/{id}",response_model=UsuarioResponse,tags=["Usuario"])
+async def get_users_id(id: int):
+    return await Usuario.objects.get(id=id)
 
 @router.get("/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
 async def get_all(page_num: int = 1,page_size: int = 10):
@@ -42,12 +53,15 @@ async def get_all(page_num: int = 1,page_size: int = 10):
     for user in users:
         id_vend = {"vendedor":user.id}
         produtos = await Produto.objects.all(**id_vend)
+        id_comp = {"comprador":user.id}
+        pedidos = await Pedido.objects.all(**id_comp)
         data = {
             "id": int(user.id),
             "username": user.username,
             "email": user.email,
             "cargos": user.cargos,
             "vendas": produtos,
+            "pedidos": pedidos
         }
         response.append(data)
     return response[start:end]

@@ -45,26 +45,27 @@ async def get_users_id(id: int):
     return await Usuario.objects.get(id=id)
 
 @router.get("/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
-async def get_all(page: int = 1,page_size: int = 10):
-    start = (page - 1) * page_size
-    end = start + page_size
-    users = await Usuario.objects.all()
-    response = []
-    for user in users:
-        id_vend = {"vendedor":user.id}
-        produtos = await Produto.objects.all(**id_vend)
-        id_comp = {"comprador":user.id}
-        pedidos = await Pedido.objects.all(**id_comp)
-        data = {
-            "id": int(user.id),
-            "username": user.username,
-            "email": user.email,
-            "cargos": user.cargos,
-            "vendas": produtos,
-            "pedidos": pedidos
-        }
-        response.append(data)
-    return response[start:end]
+async def get_all(page: int = 1,page_size: int = 10,user: UsuarioSCHM = Depends(get_current_user)):
+    if permission(user,"admin"):
+        start = (page - 1) * page_size
+        end = start + page_size
+        users = await Usuario.objects.all()
+        response = []
+        for user in users:
+            id_vend = {"vendedor":user.id}
+            produtos = await Produto.objects.all(**id_vend)
+            id_comp = {"comprador":user.id}
+            pedidos = await Pedido.objects.all(**id_comp)
+            data = {
+                "id": int(user.id),
+                "username": user.username,
+                "email": user.email,
+                "cargos": user.cargos,
+                "vendas": produtos,
+                "pedidos": pedidos
+            }
+            response.append(data)
+        return response[start:end]
 
 @router.patch("/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
 async def update_patch(id: int, user_data: UsuarioPatchSCHM,user: UsuarioSCHM = Depends(get_current_user),response: Response = Response()):
@@ -95,7 +96,6 @@ async def delete(id:int,user: UsuarioSCHM = Depends(get_current_user),response: 
             )
     else:
         raise HTTPException(
-        status_code=401,
-        detail="Not authenticated"
+        status_code=status.HTTP_401_UNAUTHORIZED
      )
 

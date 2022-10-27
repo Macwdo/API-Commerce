@@ -3,7 +3,7 @@ from controllers.utils.security import get_current_user, permission
 from models.pedidos import Pedido
 from models.produtos import Produto
 from models.usuarios import Usuario
-from schemas.PedidosSCHM import PedidosClientPatchSCHM, PedidosClientSCHM, PedidosResponseSCHM
+from schemas.PedidosSCHM import PedidosClientPatchSCHM, PedidosClientSCHM
 from schemas.UsuariosSCHM import UsuarioSCHM
 from datetime import datetime
 
@@ -13,21 +13,21 @@ router = APIRouter()
 
 @router.get("/pedidos/",tags=["Pedidos"],)
 async def get_all(user: UsuarioSCHM = Depends(get_current_user)):
-    if not permission(user,"admin"):
-        pedido = await Pedido.objects.all(id=user.id)
-    else:
+    if permission(user,"admin"):
         pedido = await Pedido.objects.all()
-
+    else:
+        print("sexo")
+        pedido_user_id = await Usuario.objects.get_or_none(id=user.id)
+        pedido = await Pedido.objects.all(comprador=pedido_user_id.id)
     return pedido
 
 @router.get("/pedidos/entregue",tags=["Pedidos"],)
 async def get_all_entregues(user: UsuarioSCHM = Depends(get_current_user)):
     if not permission(user,"admin"):
         pedido = await Pedido.objects.all(id=user.id,entregue=True)
-        return pedido
     else:
         pedido = await Pedido.objects.all(entregue=True)
-        return pedido
+    return pedido
 
 
 @router.get("/pedidos/{id}",tags=["Pedidos"])
@@ -43,10 +43,14 @@ async def get_id(id: int, user: UsuarioSCHM = Depends(get_current_user)):
     id_vendedor = vendedor_produto_id.vendedor
     if pedido_comprador_id.get("id") == user.id or id_vendedor == user.id or permission(user,"admin"):
         return pedido
+    else:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED
+        )
 
 @router.post("/pedidos/",tags=["Pedidos"])
 async def create(pedido: PedidosClientSCHM,user: UsuarioSCHM = Depends(get_current_user)):
-    if not permission(user,"comprador") or not permission(user,"admin"):
+    if not permission(user,"comprador") or permission(user,"admin"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED
         )
@@ -79,11 +83,23 @@ async def finalizar_pedido(id: int,user: UsuarioSCHM = Depends(get_current_user)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND
         )
-    produto_dict = dict(pedido.produto)
-    produto = dict(await Produto.objects.get_or_none(id=produto_dict.get("id")))
-    produto_id = dict(produto.get("vendedor"))
+    pedido_produto_dict = dict(pedido.produto)
+    produto_dict, produto = dict(await Produto.objects.get_or_none(id=pedido_produto_dict.get("id"))), await Produto.objects.get_or_none(id=pedido_produto_dict.get("id"))
+    produto_id = dict(produto_dict.get("vendedor"))
     if permission(user,"vendedor") and user.id == produto_id.get('id') or permission(user,"admin"):
+        if pedido.entregue:
+            raise HTTPException(
+                status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                detail="Pedido já Entregue"
+            )
         pedido.entregue = True
+        produto.quantidade -= pedido.quantidade
+        if produto.quantidade < 0:
+            raise HTTPException(
+                status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                detail="Capacidade Indisponivel no Estoque"
+            )
+        await produto.update()
         await pedido.update()
         return pedido
     else:

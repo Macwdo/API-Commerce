@@ -1,1 +1,4 @@
 venv/
+alunos.sqlite
+.env
+**/__pycache__/**

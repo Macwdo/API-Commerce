@@ -32,8 +32,8 @@ Autenticação
 o <b>Admin</b> não consegue retirar o seu próprio cargo de <b>Admin</b>.
 </p>
 <ul>
-    <li> /usuarios/cargos/{id}/{cargo} GET - Adiciona cargo ao ID indicado
-    <li> /usuarios/cargos/{id}/{cargo} DELETE -
+    <li> /usuarios/cargos/{id}/{cargo} <b>GET</b>  - Adiciona cargo ao ID indicado
+    <li> /usuarios/cargos/{id}/{cargo} <b>DELETE</b> -
     Retira o cargo do usuário com ID indicado
 
 </ul>
@@ -44,21 +44,49 @@ o <b>Admin</b> não consegue retirar o seu próprio cargo de <b>Admin</b>.
 </h3>
 
 <ul>
-    <li> /usuarios/ GET - Retorna dados de todos os Usuários
-    <li> /usuarios/ POST - Cria um Usuário (Email e Username são unicos)
-    <li> /usuarios/{id}/ GET - Retorna dados do Usuário referente ao Id
-    <li> /usuarios/{id}/ PATCH - Atualiza parcialmente os dados do usuário. Necessita da autenticação do usuário logado ou de um <b>Admin</b> do Sistema
-    <li> /usuarios/{id}/ DELETE - Apaga os dados do Usuário referente ao Id . Somente <b> Admin</b> apaga dados de outros usuários. <br>
-    <b>Obs</b>: o <b>Admin</b> logado não consegue apagar o seu usuário , somente outro <b>Admin</b>.
+    <li> /usuarios/admin <b>GET</b> - Retorna dados de todos os <b>Usuário</b> e suas informações de <b>Pedidos</b> e <b>Produtos</b> . <br>
+    <li> /usuarios/admin/{id} <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao id e suas informações de <b>Pedidos</b>  e <b>Produtos</b> . <br>
+    <b>Obs:</b> Endpoint feito apenas para <b>Admins</b>
+    <hr>
+    <li> /usuarios/ <b>GET</b> - Retorna dados de todos os <b>Usuário</b>. Exceto suas informações de pedidos e vendas .
+    <li> /usuarios/{id}/ <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao Id
+    <li> /usuarios/ <b>POST</b> - Cria um <b>Usuário</b> (Email e Username são unicos)
+    <li> /usuarios/{id}/ <b>PATCH</b> - Atualiza parcialmente os dados do <b>Usuário</b>. Necessita da autenticação do  <b>Usuário</b> logado ou de um <b>Admin</b> do Sistema
+    <li> /usuarios/{id}/ <b>DELETE</b> - Apaga os dados do <b>Usuário</b> referente ao Id . Somente <b> Admin</b> apaga dados de outros  <b>Usuários</b>. <br>
+    <b>Obs</b>: o <b>Admin</b> logado não consegue apagar o seu <b>Usuário</b> , somente outro <b>Admin</b>.
 </ul>
 
 <h3>
 Produtos
 </h3>
 <p>
-    Os produtos poderão ser comprados , se tornando assim um <b> Pedido.</b> Necessita o <b>Usuário </b>estar autenticado para requisição de seus respectivos endpoints.
+    Os <b>Produtos</b> poderão ser comprados , se tornando assim um <b> Pedido.</b> Necessita o <b>Usuário </b>estar autenticado para requisição de seus respectivos endpoints. Para criar um produto necessita do cargo <b>Vendedor</b>.
+</p>
 </p>
 <ul>
-    <li> /usuarios/produtos GET - Retorna dados de todos os Produtos
-    <li> /usuarios/produtos POST - Cria um novo produto.
+    <li> /usuarios/produtos <b>GET</b>  - Retorna dados de todos os <b>Produtos</b> 
+    <li> /usuarios/produtos/{id} <b>GET</b>  - Retorna dados do <b>Produtos</b>  referente ao id
+    <li> /usuarios/produtos <b>POST</b>  - Cria um novo <b>Produto</b> . Necessita o <b>Usuário</b> estar autenticado e que tenha o cargo de vendedor
+    <li> /usuarios/patch/{id} <b>PATCH</b> - Atualiza parcialmente os dados do <b>Produto</b>. Necessita da autenticação do  <b>Usuário</b> que criou o <b>Produto</b> ou de um <b>Admin</b> do Sistema
+    <li> /usuarios/produtos/{id}/ <b>Delete</b> - Apaga os dados do <b>Produto</b> referente ao Id
+    <b>Obs</b>: Somente o Criador do <b> Produto </b> ou <b>Admin</b> consegue apagar.
+</ul>
+
+<h3>
+Pedidos
+</h3>
+<p>
+    Os <b>Pedidos</b> são solicitações feitas pelo <b>Usuário</b> com o cargo de <b>Comprador</b> a um determinado <b>Produto</b>. O criador precisa fazer a confirmação da entrega desse <b> Pedido</b>. Necessita estar autenticado para requisição de seus respectivos endpoints e com o cargo <b>Comprador</b> para fazer a solicitação de um  <b>Pedido</b>.
+</p>
+
+<ul>
+    <li> /usuarios/pedidos <b>GET</b>  - Retorna dados de todos os <b>Pedidos</b> referente ao <b>Usuário</b> autenticado.
+    <li> /usuarios/pedidos/{id} <b>GET</b>  -Retorna dados do <b>Pedidos</b> referente ao id indicado , caso pertença ao <b>Usuário</b> autenticado.
+    <li> /usuarios/pedidos <b>POST</b>  - Cria um novo <b>Pedido</b> . Necessita o <b>Usuário</b> estar autenticado e que tenha o cargo de <b>Comprador</b>
+    <li> /usuarios/pedidos/{id} <b>PATCH</b> - Atualiza parcialmente os dados do <b>Pedido</b>. caso ele não tenha sido entregue. Necessita da autenticação do  <b>Usuário</b> que criou o <b>Pedido</b> ou de um <b>Admin</b> do Sistema
+    <li>usuarios/pedidos/atualizar/{id} <b>GET</b> - Faz a confirmação da entrega do <b> Pedido </b>. Necessita estar autenticado como o <b>Vendedor</b> e criador do <b>Pedido</b> ou <b>Admin</b> do sistema.
+    <li> /usuarios/produtos/{id}/ <b>Delete</b> - Apaga os dados do <b>Pedido</b> referente ao Id caso o <b> Pedido </b> tenha sido entregue.
+    <br><b>Obs</b>: Somente o <b>Usuario</b> que fez a solicitação do <b> Pedido </b> ou <b>Admin</b> consegue apagar.
+
+
 </ul>

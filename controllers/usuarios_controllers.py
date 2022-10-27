@@ -18,7 +18,15 @@ async def create(usuario: UsuarioCreate,response : Response = Response()):
     user = Usuario(**data)
     return await user.save()
 
-@router.get("/{id}",response_model=UsuarioResponseAll,response_model_exclude_unset=True,tags=["Usuario"])
+@router.get("/",response_model=List[UsuarioResponse],tags=["Usuario"])
+async def get_users():
+    return await Usuario.objects.all()
+
+@router.get("/{id}",response_model=UsuarioResponse,tags=["Usuario"])
+async def get_users_id(id: int):
+    return await Usuario.objects.get(id=id)
+
+@router.get("/admin/{id}",response_model=UsuarioResponseAll,response_model_exclude_unset=True,tags=["Usuario"])
 async def get_id(id: int):
     user = await Usuario.objects.get(id=id)
     response = []
@@ -36,15 +44,7 @@ async def get_id(id: int):
     }
     return response
 
-@router.get("/users/",response_model=List[UsuarioResponse],tags=["Usuario"])
-async def get_users():
-    return await Usuario.objects.all()
-
-@router.get("/users/{id}",response_model=UsuarioResponse,tags=["Usuario"])
-async def get_users_id(id: int):
-    return await Usuario.objects.get(id=id)
-
-@router.get("/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
+@router.get("/admin/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
 async def get_all(page: int = 1,page_size: int = 10,user: UsuarioSCHM = Depends(get_current_user)):
     if permission(user,"admin"):
         start = (page - 1) * page_size
@@ -67,7 +67,7 @@ async def get_all(page: int = 1,page_size: int = 10,user: UsuarioSCHM = Depends(
             response.append(data)
         return response[start:end]
 
-@router.patch("/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
+@router.patch("/admin/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
 async def update_patch(id: int, user_data: UsuarioPatchSCHM,user: UsuarioSCHM = Depends(get_current_user),response: Response = Response()):
     if permission(user,'admin') or id == user.id:
         user_dict = user_data.dict(exclude_unset=True)

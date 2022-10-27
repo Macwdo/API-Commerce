@@ -24,6 +24,7 @@ def jwt_create(sub: Union[Any,str]):
     token = jwt.encode(payload,SECRET_KEY,algorithm="HS512")
     return token
 
+
 def get_sub(token: str):
     data = jwt.decode(token,SECRET_KEY,algorithms="HS512")
     return int(data.get('sub'))

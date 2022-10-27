@@ -16,7 +16,6 @@ async def get_all(user: UsuarioSCHM = Depends(get_current_user)):
     if permission(user,"admin"):
         pedido = await Pedido.objects.all()
     else:
-        print("sexo")
         pedido_user_id = await Usuario.objects.get_or_none(id=user.id)
         pedido = await Pedido.objects.all(comprador=pedido_user_id.id)
     return pedido
@@ -114,8 +113,8 @@ async def apagar_pedido(id: int, user: UsuarioSCHM = Depends(get_current_user), 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND
         )
-    produto_dict = dict(pedido.produto)
-    if permission(user,"vendedor") and user.id == produto_dict.get("id") or permission(user,"admin"):
+    produto_dict = dict(pedido.comprador)
+    if permission(user,"comprador") and user.id == produto_dict.get("id") or permission(user,"admin"):
         if permission(user,"admin") or pedido.entregue:
             response.status_code = status.HTTP_204_NO_CONTENT
             return await pedido.delete()

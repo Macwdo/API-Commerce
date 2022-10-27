@@ -12,10 +12,10 @@ class UsuarioResponse(BaseModel):
 
     
 class UsuarioResponseAll(BaseModel):
-    id:  Optional[int]
+    id: int
     username: str
     email: str
-    cargos: List[str]
+    cargos: List[Union[Json,Any]] = []
     vendas: List[Union[Json,Any]] = []
     pedidos: List[Union[Json,Any]] = []
 

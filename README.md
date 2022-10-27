@@ -29,7 +29,7 @@ Autenticação
 </p>
 <p> Só adiciona e retira cargo a outros usuários somente quem tem a permissão de <b> Admin</b>.
 <p>
-o <b>Admin</b> não consegue retirar o seu próprio cargo de <b>Admin</b>.
+o <b>Admin</b> logado não consegue retirar o seu próprio cargo de <b>Admin</b>.
 </p>
 <ul>
     <li> /usuarios/cargos/{id}/{cargo} <b>GET</b>  - Adiciona cargo ao ID indicado
@@ -49,8 +49,8 @@ o <b>Admin</b> não consegue retirar o seu próprio cargo de <b>Admin</b>.
     <b>Obs:</b> Endpoint feito apenas para <b>Admins</b>
     <hr>
     <li> /usuarios/ <b>GET</b> - Retorna dados de todos os <b>Usuário</b>. Exceto suas informações de pedidos e vendas .
-    <li> /usuarios/{id}/ <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao Id
-    <li> /usuarios/ <b>POST</b> - Cria um <b>Usuário</b> (Email e Username são unicos)
+    <li> /usuarios/{id}/ <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao Id    <li> /usuarios/comprador <b>POST</b> - Cria um <b>Usuário</b> e atribui o cargo de <b>Comprador</b> (Email e Username são unicos)
+    <li> /usuarios/comprador <b>POST</b> - Cria um <b>Usuário</b> e atribui o cargo de <b>Vendedor</b> (Email e Username são unicos)
     <li> /usuarios/{id}/ <b>PATCH</b> - Atualiza parcialmente os dados do <b>Usuário</b>. Necessita da autenticação do  <b>Usuário</b> logado ou de um <b>Admin</b> do Sistema
     <li> /usuarios/{id}/ <b>DELETE</b> - Apaga os dados do <b>Usuário</b> referente ao Id . Somente <b> Admin</b> apaga dados de outros  <b>Usuários</b>. <br>
     <b>Obs</b>: o <b>Admin</b> logado não consegue apagar o seu <b>Usuário</b> , somente outro <b>Admin</b>.

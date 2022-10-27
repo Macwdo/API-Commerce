@@ -11,8 +11,16 @@ from controllers.utils.security import oauth2_scheme, get_current_user, permissi
 router = APIRouter()
 
     
-@router.post("/", response_model=UsuarioLogin,tags=["Usuario"])
-async def create(usuario: UsuarioCreate,response : Response = Response()):
+@router.post("/comprador", response_model=UsuarioLogin,tags=["Usuario"])
+async def criar_comprador(usuario: UsuarioCreate,response : Response = Response()):
+    response.status_code = status.HTTP_201_CREATED
+    data = usuario.dict(exclude_unset=True)
+    user = Usuario(**data,cargos="comprador")
+    print(user)
+    return await user.save()
+
+@router.post("/vendedor", response_model=UsuarioLogin,tags=["Usuario"])
+async def criar_vendedor(usuario: UsuarioCreate,response : Response = Response()):
     response.status_code = status.HTTP_201_CREATED
     data = usuario.dict(exclude_unset=True)
     user = Usuario(**data)
@@ -45,29 +53,33 @@ async def get_id(id: int):
     return response
 
 @router.get("/admin/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
-async def get_all(page: int = 1,page_size: int = 10,user: UsuarioSCHM = Depends(get_current_user)):
-    if permission(user,"admin"):
-        start = (page - 1) * page_size
-        end = start + page_size
-        users = await Usuario.objects.all()
-        response = []
-        for user in users:
-            id_vend = {"vendedor":user.id}
-            produtos = await Produto.objects.all(**id_vend)
-            id_comp = {"comprador":user.id}
-            pedidos = await Pedido.objects.all(**id_comp)
-            data = {
-                "id": int(user.id),
-                "username": user.username,
-                "email": user.email,
-                "cargos": user.cargos,
-                "vendas": produtos,
-                "pedidos": pedidos
-            }
-            response.append(data)
-        return response[start:end]
+async def admin_listviewpage(page: int = 1,page_size: int = 10, user: UsuarioSCHM = Depends(get_current_user)):
+    if not permission(user,"admin"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
+    start = (page - 1) * page_size
+    end = start + page_size
+    users = await Usuario.objects.all()
+    response = []
+    for usuario in users:
+        id_vend = {"vendedor":usuario.id}
+        produtos = await Produto.objects.all(**id_vend)
+        id_comp = {"comprador":usuario.id}
+        pedidos = await Pedido.objects.all(**id_comp)
+        data = {
+            "id": int(usuario.id),
+            "username": usuario.username,
+            "email": usuario.email,
+            "cargos": usuario.cargos,
+            "vendas": produtos,
+            "pedidos": pedidos
+        }
+        response.append(data)
+    return response[start:end]
 
-@router.patch("/admin/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
+
+@router.patch("/{id}",response_model=UsuarioPatchShowSCHM,tags=["Usuario"])
 async def update_patch(id: int, user_data: UsuarioPatchSCHM,user: UsuarioSCHM = Depends(get_current_user),response: Response = Response()):
     if permission(user,'admin') or id == user.id:
         user_dict = user_data.dict(exclude_unset=True)

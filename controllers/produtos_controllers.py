@@ -9,11 +9,19 @@ router = APIRouter()
 #Gets
 
 @router.get("/produtos/",tags=["Produtos"])
-async def get_all():
+async def get_all(user = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
     return await Produto.objects.all()
 
 @router.get("/produtos/{id_pd}",tags=["Produtos"])
-async def get_id_prod(id_pd: int):
+async def get_id_prod(id_pd: int,user = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
     produto = await Produto.objects.get_or_none(id=id_pd)
     if produto is None:
         raise HTTPException(

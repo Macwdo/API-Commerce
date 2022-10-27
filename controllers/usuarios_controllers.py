@@ -45,8 +45,8 @@ async def get_users_id(id: int):
     return await Usuario.objects.get(id=id)
 
 @router.get("/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
-async def get_all(page_num: int = 1,page_size: int = 10):
-    start = (page_num - 1) * page_size
+async def get_all(page: int = 1,page_size: int = 10):
+    start = (page - 1) * page_size
     end = start + page_size
     users = await Usuario.objects.all()
     response = []

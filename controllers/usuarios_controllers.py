@@ -15,8 +15,8 @@ router = APIRouter()
 async def criar_comprador(usuario: UsuarioCreate,response : Response = Response()):
     response.status_code = status.HTTP_201_CREATED
     data = usuario.dict(exclude_unset=True)
-    user = Usuario(**data,cargos="comprador")
-    print(user)
+    user = Usuario(**data)
+    user.cargos += ["comprador"]
     return await user.save()
 
 @router.post("/vendedor", response_model=UsuarioLogin,tags=["Usuario"])
@@ -24,35 +24,38 @@ async def criar_vendedor(usuario: UsuarioCreate,response : Response = Response()
     response.status_code = status.HTTP_201_CREATED
     data = usuario.dict(exclude_unset=True)
     user = Usuario(**data)
+    user.cargos += ["vendedor"]
     return await user.save()
 
 @router.get("/",response_model=List[UsuarioResponse],tags=["Usuario"])
 async def get_users():
     return await Usuario.objects.all()
 
-@router.get("/{id}",response_model=UsuarioResponse,tags=["Usuario"])
-async def get_users_id(id: int):
-    return await Usuario.objects.get(id=id)
 
-@router.get("/admin/{id}",response_model=UsuarioResponseAll,response_model_exclude_unset=True,tags=["Usuario"])
-async def get_id(id: int):
-    user = await Usuario.objects.get(id=id)
-    response = []
-    id_vend = {"vendedor":user.id}
-    produtos = await Produto.objects.all(**id_vend)
-    id_comp = {"comprador":user.id}
-    pedidos = await Pedido.objects.all(**id_comp)
-    response = {
-        "id": int(user.id),
-        "username": user.username,
-        "email": user.email,
-        "cargos": user.cargos,
-        "vendas": produtos,
-        "pedidos": pedidos
-    }
-    return response
+@router.get("/{id}",response_model=UsuarioResponseAll,response_model_exclude_unset=True,tags=["Usuario"])
+async def get_id(id: int,user :UsuarioResponse = Depends(get_current_user)):
+    if permission(user,"admin") or user.id == id:
+        user_ = await Usuario.objects.get(id=id)
+        response = []
+        id_vend = {"vendedor":user_.id}
+        produtos = await Produto.objects.all(**id_vend)
+        id_comp = {"comprador":user_.id}
+        pedidos = await Pedido.objects.all(**id_comp)
+        response = {
+            "id": int(user_.id),
+            "username": user_.username,
+            "email": user_.email,
+            "cargos": user_.cargos,
+            "vendas": produtos,
+            "pedidos": pedidos
+        }
+        return response
+    else:
+        return await Usuario.objects.get(id=id)
 
-@router.get("/admin/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
+        
+
+@router.get("/adminview/",response_model=List[UsuarioResponseAll],response_model_exclude_unset=True,tags=["Usuario"])
 async def admin_listviewpage(page: int = 1,page_size: int = 10, user: UsuarioSCHM = Depends(get_current_user)):
     if not permission(user,"admin"):
         raise HTTPException(

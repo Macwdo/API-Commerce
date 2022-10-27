@@ -27,7 +27,7 @@ Autenticação
 <p>
     <b>Admin - Vendedor - Comprador</b>
 </p>
-<p> Só adiciona e retira cargo a outros usuários somente quem tem a permissão de <b> Admin</b>.
+<p> Só adiciona e retira cargo a outros usuários somente quem tem a permissão de <b> Admin</b>. Os cargos ja são atribuidos em sua criação , mas por motivos de controle poderão ser removidos ou adicionados pelo sistema.
 <p>
 o <b>Admin</b> logado não consegue retirar o seu próprio cargo de <b>Admin</b>.
 </p>
@@ -44,12 +44,14 @@ o <b>Admin</b> logado não consegue retirar o seu próprio cargo de <b>Admin</b>
 </h3>
 
 <ul>
-    <li> /usuarios/admin <b>GET</b> - Retorna dados de todos os <b>Usuário</b> e suas informações de <b>Pedidos</b> e <b>Produtos</b> . <br>
-    <li> /usuarios/admin/{id} <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao id e suas informações de <b>Pedidos</b>  e <b>Produtos</b> . <br>
+    <li> /usuarios/adminview <b>GET</b> - Retorna dados de todos os <b>Usuário</b> e suas informações de <b>Pedidos</b> e <b>Produtos</b> . <br>
+    <li> /usuarios/{id} <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao id e suas informações de <b>Pedidos</b>  e <b>Produtos</b> . <br>
     <b>Obs:</b> Endpoint feito apenas para <b>Admins</b>
     <hr>
     <li> /usuarios/ <b>GET</b> - Retorna dados de todos os <b>Usuário</b>. Exceto suas informações de pedidos e vendas .
-    <li> /usuarios/{id}/ <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao Id    <li> /usuarios/comprador <b>POST</b> - Cria um <b>Usuário</b> e atribui o cargo de <b>Comprador</b> (Email e Username são unicos)
+    <li> /usuarios/{id}/ <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao Id, caso o Id seja referente ao <b>Usuário</b> autenticado , retornará também seus <b> Pedidos</b> e <b>Produtos</b>.<br>
+    <b>Obs:</b> O <b>Usuário</b> autenticado com cargo de admin poderá ver também <b>Pedidos</b> e <b>Produtos</b> de qualquer <b>Usuário</b>.
+    <li> /usuarios/comprador <b>POST</b> - Cria um <b>Usuário</b> e atribui o cargo de <b>Comprador</b> (Email e Username são unicos)
     <li> /usuarios/comprador <b>POST</b> - Cria um <b>Usuário</b> e atribui o cargo de <b>Vendedor</b> (Email e Username são unicos)
     <li> /usuarios/{id}/ <b>PATCH</b> - Atualiza parcialmente os dados do <b>Usuário</b>. Necessita da autenticação do  <b>Usuário</b> logado ou de um <b>Admin</b> do Sistema
     <li> /usuarios/{id}/ <b>DELETE</b> - Apaga os dados do <b>Usuário</b> referente ao Id . Somente <b> Admin</b> apaga dados de outros  <b>Usuários</b>. <br>

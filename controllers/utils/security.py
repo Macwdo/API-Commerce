@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union
-from fastapi import Depends, HTTPException
-from jose import jwt
+from fastapi import Depends, HTTPException, status
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from models.usuarios import Usuario
@@ -26,15 +26,20 @@ def jwt_create(sub: Union[Any,str]):
 
 
 def get_sub(token: str):
-    data = jwt.decode(token,SECRET_KEY,algorithms="HS512")
-    return int(data.get('sub'))
+    try:
+        data = jwt.decode(token,SECRET_KEY,algorithms="HS512")
+        return int(data.get('sub'))
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     id = get_sub(token)
     user = await Usuario.objects.get_or_none(id=int(id))
     if not user:
         raise HTTPException(
-            status_code=404
+            status_code=status.HTTP_401_UNAUTHORIZED
         )
     return user
         

@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union
 from fastapi import Depends, HTTPException, status
-from jose import jwt, JWTError
-from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
 from models.usuarios import Usuario
-
+from passlib.context import CryptContext
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl='/api/auth/token'
@@ -18,14 +17,15 @@ SECRET_KEY = "djsa0iojdosa"
 
 def jwt_create(sub: Union[Any,str]):
     payload = {
-        "exp": datetime.now(tz=timezone.utc) + timedelta(hours=24),
+        "exp": datetime.now(tz=timezone.utc) + timedelta(hours=1),
         "sub":str(sub)
         }
     token = jwt.encode(payload,SECRET_KEY,algorithm="HS512")
     return token
 
 
-def get_sub(token: str):
+
+def jwt_decode(token: str):
     try:
         data = jwt.decode(token,SECRET_KEY,algorithms="HS512")
         return int(data.get('sub'))
@@ -35,7 +35,7 @@ def get_sub(token: str):
         )
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    id = get_sub(token)
+    id = jwt_decode(token)
     user = await Usuario.objects.get_or_none(id=int(id))
     if not user:
         raise HTTPException(

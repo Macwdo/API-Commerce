@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends,Form, HTTPException, Response,status
 from controllers.utils.security import get_current_user, password_verify ,jwt_create
 from models.usuarios import Usuario
-from schemas.UsuariosSCHM import UsuarioResponse, UsuarioResponseAll,UsuarioSCHM
+from schemas.UsuariosSCHM import UsuarioResponseAll,UsuarioSCHM
 
 router = APIRouter()
 
 @router.post("/token",tags=["Auth"])
-async def login(username: str = Form(...), password:str = Form(...)):
+async def token(username: str = Form(...), password:str = Form(...)):
     user = await Usuario.objects.get_or_none(username=username)
     if not user:
         raise HTTPException(

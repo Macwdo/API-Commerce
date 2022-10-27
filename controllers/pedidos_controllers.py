@@ -13,12 +13,22 @@ router = APIRouter()
 
 @router.get("/pedidos/",tags=["Pedidos"],)
 async def get_all(user: UsuarioSCHM = Depends(get_current_user)):
-    pedido = await Pedido.objects.all()
     if not permission(user,"admin"):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED
-        )    
+        pedido = await Pedido.objects.all(id=user.id)
+    else:
+        pedido = await Pedido.objects.all()
+
     return pedido
+
+@router.get("/pedidos/entregue",tags=["Pedidos"],)
+async def get_all_entregues(user: UsuarioSCHM = Depends(get_current_user)):
+    if not permission(user,"admin"):
+        pedido = await Pedido.objects.all(id=user.id,entregue=True)
+        return pedido
+    else:
+        pedido = await Pedido.objects.all(entregue=True)
+        return pedido
+
 
 @router.get("/pedidos/{id}",tags=["Pedidos"])
 async def get_id(id: int, user: UsuarioSCHM = Depends(get_current_user)):

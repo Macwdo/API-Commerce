@@ -52,7 +52,7 @@ o <b>Admin</b> logado não consegue retirar o seu próprio cargo de <b>Admin</b>
     <li> /usuarios/{id}/ <b>GET</b> - Retorna dados do <b>Usuário</b> referente ao Id, caso o Id seja referente ao <b>Usuário</b> autenticado , retornará também seus <b> Pedidos</b> e <b>Produtos</b>.<br>
     <b>Obs:</b> O <b>Usuário</b> autenticado com cargo de admin poderá ver também <b>Pedidos</b> e <b>Produtos</b> de qualquer <b>Usuário</b>.
     <li> /usuarios/comprador <b>POST</b> - Cria um <b>Usuário</b> e atribui o cargo de <b>Comprador</b> (Email e Username são unicos)
-    <li> /usuarios/comprador <b>POST</b> - Cria um <b>Usuário</b> e atribui o cargo de <b>Vendedor</b> (Email e Username são unicos)
+    <li> /usuarios/vendedor <b>POST</b> - Cria um <b>Usuário</b> e atribui o cargo de <b>Vendedor</b> (Email e Username são unicos)
     <li> /usuarios/{id}/ <b>PATCH</b> - Atualiza parcialmente os dados do <b>Usuário</b>. Necessita da autenticação do  <b>Usuário</b> logado ou de um <b>Admin</b> do Sistema
     <li> /usuarios/{id}/ <b>DELETE</b> - Apaga os dados do <b>Usuário</b> referente ao Id . Somente <b> Admin</b> apaga dados de outros  <b>Usuários</b>. <br>
     <b>Obs</b>: o <b>Admin</b> logado não consegue apagar o seu <b>Usuário</b> , somente outro <b>Admin</b>.
